@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeStorm Video Capture Example</title>
+    <!-- CCapture.js for video capture -->
+    <script src="https://cdn.jsdelivr.net/npm/ccapture.js@1.1.0/build/CCapture.all.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .demo-area {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        canvas {
+            border: 1px solid #444;
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0056CC;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007AFF, #00C7FF);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .status {
+            font-size: 14px;
+            color: #aaa;
+            margin: 10px 0;
+        }
+        .quality-selector {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .quality-selector label {
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .quality-selector select {
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .format-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .format-selector input[type="radio"] {
+            margin-right: 5px;
+        }
+        .download-link {
+            display: inline-block;
+            background: #34C759;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .download-link:hover {
+            background: #28A745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TypeStorm Video Capture Demo</h1>
+        <p>Export high-quality videos with CCapture.js + ffmpeg.wasm integration</p>
+        
+        <div class="demo-area">
+            <canvas id="demoCanvas" width="540" height="960"></canvas>
+            
+            <div class="controls">
+                <button id="playBtn">Play Animation</button>
+                <button id="pauseBtn" disabled>Pause</button>
+                <button id="restartBtn">Restart</button>
+            </div>
+            
+            <div class="quality-selector">
+                <label for="qualitySelect">Quality:</label>
+                <select id="qualitySelect">
+                    <option value="low">Low (1 Mbps)</option>
+                    <option value="medium">Medium (2.5 Mbps)</option>
+                    <option value="high" selected>High (5 Mbps)</option>
+                    <option value="ultra">Ultra (8 Mbps)</option>
+                </select>
+            </div>
+            
+            <div class="format-selector">
+                <label>Format:</label>
+                <label><input type="radio" name="format" value="mp4" checked> MP4</label>
+                <label><input type="radio" name="format" value="webm"> WebM</label>
+                <label><input type="radio" name="format" value="gif"> GIF</label>
+            </div>
+            
+            <div class="controls">
+                <button id="exportTikTokBtn">Export for TikTok</button>
+                <button id="exportStoriesBtn">Export for Instagram Stories</button>
+                <button id="exportTwitterBtn">Export for Twitter</button>
+                <button id="exportCustomBtn">Custom Export</button>
+            </div>
+            
+            <div class="progress-bar" id="progressBar" style="display: none;">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="status" id="statusText"></div>
+            
+            <div id="downloadArea"></div>
+        </div>
+        
+        <div class="demo-area">
+            <h3>Features</h3>
+            <ul>
+                <li><strong>Multiple Formats:</strong> MP4 (H.264), WebM (VP9), GIF</li>
+                <li><strong>Quality Settings:</strong> Low, Medium, High, Ultra</li>
+                <li><strong>Platform Presets:</strong> TikTok/Reels, Instagram Stories, Twitter</li>
+                <li><strong>Real-time Progress:</strong> Frame capture and encoding progress</li>
+                <li><strong>Memory Management:</strong> Automatic cleanup and monitoring</li>
+                <li><strong>Browser Optimization:</strong> Automatic codec selection</li>
+                <li><strong>Mobile Support:</strong> Optimized for mobile browsers</li>
+            </ul>
+        </div>
+        
+        <div class="demo-area">
+            <h3>Technical Specifications</h3>
+            <ul>
+                <li><strong>Default Resolution:</strong> 1080x1920 (TikTok/Reels vertical)</li>
+                <li><strong>Frame Rates:</strong> 15, 30, 60 FPS</li>
+                <li><strong>Duration:</strong> 3-10 seconds (configurable)</li>
+                <li><strong>Encoding:</strong> CCapture.js + ffmpeg.wasm</li>
+                <li><strong>Browser Support:</strong> Chrome, Safari, Firefox, Mobile</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        // This is a demo - in a real implementation, you would import from your built modules
+        console.log('TypeStorm Video Capture Demo');
+        console.log('This demo shows the UI for the video capture system.');
+        console.log('In a real implementation, the TextEngine and VideoCapture classes would be imported.');
+
+        // Demo UI functionality
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const exportButtons = document.querySelectorAll('[id*="exportBtn"]');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const statusText = document.getElementById('statusText');
+        const downloadArea = document.getElementById('downloadArea');
+        const canvas = document.getElementById('demoCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Simple animation demo
+        let animationId;
+        let startTime;
+        let isPlaying = false;
+
+        function drawFrame(time) {
+            if (!startTime) startTime = time;
+            const elapsed = (time - startTime) / 1000;
+            
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw animated text
+            ctx.fillStyle = '#fff';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const scale = 1 + Math.sin(elapsed * 2) * 0.2;
+            const rotation = elapsed * 0.5;
+            
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(rotation);
+            ctx.scale(scale, scale);
+            ctx.fillText('TypeStorm', 0, 0);
+            ctx.restore();
+            
+            if (isPlaying) {
+                animationId = requestAnimationFrame(drawFrame);
+            }
+        }
+
+        function startAnimation() {
+            if (isPlaying) return;
+            isPlaying = true;
+            startTime = null;
+            playBtn.disabled = true;
+            pauseBtn.disabled = false;
+            animationId = requestAnimationFrame(drawFrame);
+        }
+
+        function pauseAnimation() {
+            isPlaying = false;
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        function restartAnimation() {
+            pauseAnimation();
+            startTime = null;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Simulate export process
+        function simulateExport(platform) {
+            const quality = document.getElementById('qualitySelect').value;
+            const format = document.querySelector('input[name="format"]:checked').value;
+            
+            statusText.textContent = `Exporting for ${platform} (${quality} quality, ${format} format)...`;
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+            
+            // Disable export buttons
+            exportButtons.forEach(btn => btn.disabled = true);
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                
+                progressFill.style.width = progress + '%';
+                
+                if (progress < 30) {
+                    statusText.textContent = `Initializing capture system... ${Math.round(progress)}%`;
+                } else if (progress < 70) {
+                    statusText.textContent = `Capturing frames... ${Math.round(progress)}%`;
+                } else if (progress < 95) {
+                    statusText.textContent = `Encoding video... ${Math.round(progress)}%`;
+                } else {
+                    statusText.textContent = `Finalizing export... ${Math.round(progress)}%`;
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Show download link
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = '#';
+                    downloadLink.className = 'download-link';
+                    downloadLink.textContent = `Download ${platform} Video (${format.toUpperCase()})`;
+                    downloadLink.onclick = (e) => {
+                        e.preventDefault();
+                        alert('In a real implementation, this would download the exported video file.');
+                    };
+                    
+                    downloadArea.innerHTML = '';
+                    downloadArea.appendChild(downloadLink);
+                    
+                    statusText.textContent = `Export complete! Video ready for ${platform}.`;
+                    progressBar.style.display = 'none';
+                    
+                    // Re-enable export buttons
+                    exportButtons.forEach(btn => btn.disabled = false);
+                }
+            }, 200);
+        }
+
+        // Event listeners
+        playBtn.addEventListener('click', startAnimation);
+        pauseBtn.addEventListener('click', pauseAnimation);
+        restartBtn.addEventListener('click', restartAnimation);
+        
+        document.getElementById('exportTikTokBtn').addEventListener('click', () => simulateExport('TikTok'));
+        document.getElementById('exportStoriesBtn').addEventListener('click', () => simulateExport('Instagram Stories'));
+        document.getElementById('exportTwitterBtn').addEventListener('click', () => simulateExport('Twitter'));
+        document.getElementById('exportCustomBtn').addEventListener('click', () => simulateExport('Custom'));
+
+        // Initialize with one frame
+        drawFrame(0);
+    </script>
+</body>
+</html>

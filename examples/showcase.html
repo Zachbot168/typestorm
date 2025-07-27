@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeStorm Examples Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaaaaa;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .example-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #333;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .example-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ffff;
+        }
+        
+        .example-preview {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .example-canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .example-info {
+            padding: 20px;
+        }
+        
+        .example-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        
+        .example-description {
+            color: #aaaaaa;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .example-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .tag {
+            background: #333;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        
+        .tag.preset {
+            background: #00ffff;
+            color: #000;
+        }
+        
+        .tag.layout {
+            background: #ff00ff;
+            color: #000;
+        }
+        
+        .example-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: #555;
+        }
+        
+        .action-btn.primary {
+            background: #00ffff;
+            color: #000;
+        }
+        
+        .action-btn.primary:hover {
+            background: #00cccc;
+        }
+        
+        .code-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .code-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #00ffff;
+        }
+        
+        .code-example {
+            background: #000;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        pre {
+            color: #ffffff;
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .highlight {
+            color: #00ffff;
+        }
+        
+        .string {
+            color: #ffff00;
+        }
+        
+        .comment {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .copy-btn {
+            background: #00ffff;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌪️ TypeStorm Examples</h1>
+            <p class="subtitle">
+                Explore real-world examples and learn how to integrate TypeStorm into your projects. 
+                Copy code snippets and see live demonstrations.
+            </p>
+        </header>
+        
+        <!-- Example Grid -->
+        <div class="example-grid">
+            <!-- Neon Spiral Example -->
+            <div class="example-card">
+                <div class="example-preview">
+                    <canvas class="example-canvas" width="300" height="150" data-example="neon-spiral"></canvas>
+                </div>
+                <div class="example-info">
+                    <h3 class="example-title">Neon Spiral Effect</h3>
+                    <p class="example-description">
+                        Electric blue neon text arranged in an expanding spiral pattern. Perfect for tech and gaming content.
+                    </p>
+                    <div class="example-tags">
+                        <span class="tag preset">Neon</span>
+                        <span class="tag layout">Spiral</span>
+                        <span class="tag">60fps</span>
+                    </div>
+                    <div class="example-actions">
+                        <button class="action-btn" onclick="playExample('neon-spiral')">▶ Play</button>
+                        <button class="action-btn primary" onclick="showCode('neon-spiral')">View Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Liquid Radial Example -->
+            <div class="example-card">
+                <div class="example-preview">
+                    <canvas class="example-canvas" width="300" height="150" data-example="liquid-radial"></canvas>
+                </div>
+                <div class="example-info">
+                    <h3 class="example-title">Liquid Radial Flow</h3>
+                    <p class="example-description">
+                        Smooth liquid morphing with characters arranged in a perfect circle. Ideal for organic, flowing content.
+                    </p>
+                    <div class="example-tags">
+                        <span class="tag preset">Liquid</span>
+                        <span class="tag layout">Radial</span>
+                        <span class="tag">Fluid</span>
+                    </div>
+                    <div class="example-actions">
+                        <button class="action-btn" onclick="playExample('liquid-radial')">▶ Play</button>
+                        <button class="action-btn primary" onclick="showCode('liquid-radial')">View Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fire Grid Example -->
+            <div class="example-card">
+                <div class="example-preview">
+                    <canvas class="example-canvas" width="300" height="150" data-example="fire-grid"></canvas>
+                </div>
+                <div class="example-info">
+                    <h3 class="example-title">Fire Grid Burst</h3>
+                    <p class="example-description">
+                        Dramatic burning text in a structured grid layout with realistic flame particles and heat distortion.
+                    </p>
+                    <div class="example-tags">
+                        <span class="tag preset">Fire</span>
+                        <span class="tag layout">Grid</span>
+                        <span class="tag">Particles</span>
+                    </div>
+                    <div class="example-actions">
+                        <button class="action-btn" onclick="playExample('fire-grid')">▶ Play</button>
+                        <button class="action-btn primary" onclick="showCode('fire-grid')">View Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Glitch Text Example -->
+            <div class="example-card">
+                <div class="example-preview">
+                    <canvas class="example-canvas" width="300" height="150" data-example="glitch-effect"></canvas>
+                </div>
+                <div class="example-info">
+                    <h3 class="example-title">Digital Glitch</h3>
+                    <p class="example-description">
+                        Cyberpunk-style digital corruption with RGB separation and data noise. Perfect for tech and gaming.
+                    </p>
+                    <div class="example-tags">
+                        <span class="tag preset">Glitch</span>
+                        <span class="tag layout">Grid</span>
+                        <span class="tag">Cyberpunk</span>
+                    </div>
+                    <div class="example-actions">
+                        <button class="action-btn" onclick="playExample('glitch-effect')">▶ Play</button>
+                        <button class="action-btn primary" onclick="showCode('glitch-effect')">View Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Variable Font Morph -->
+            <div class="example-card">
+                <div class="example-preview">
+                    <canvas class="example-canvas" width="300" height="150" data-example="vf-morph"></canvas>
+                </div>
+                <div class="example-info">
+                    <h3 class="example-title">Variable Font Morph</h3>
+                    <p class="example-description">
+                        Elegant typography morphing using variable fonts. Smooth weight and width transitions for sophisticated content.
+                    </p>
+                    <div class="example-tags">
+                        <span class="tag preset">VF-Morph</span>
+                        <span class="tag layout">Radial</span>
+                        <span class="tag">Typography</span>
+                    </div>
+                    <div class="example-actions">
+                        <button class="action-btn" onclick="playExample('vf-morph')">▶ Play</button>
+                        <button class="action-btn primary" onclick="showCode('vf-morph')">View Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Social Media Ready -->
+            <div class="example-card">
+                <div class="example-preview">
+                    <canvas class="example-canvas" width="300" height="150" data-example="social-media"></canvas>
+                </div>
+                <div class="example-info">
+                    <h3 class="example-title">Social Media Ready</h3>
+                    <p class="example-description">
+                        Optimized for TikTok, Instagram Stories, and other social platforms. One-click export in perfect formats.
+                    </p>
+                    <div class="example-tags">
+                        <span class="tag preset">Neon</span>
+                        <span class="tag">1080x1920</span>
+                        <span class="tag">Social</span>
+                    </div>
+                    <div class="example-actions">
+                        <button class="action-btn" onclick="playExample('social-media')">▶ Play</button>
+                        <button class="action-btn primary" onclick="showCode('social-media')">View Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Code Examples Section -->
+        <div class="code-section">
+            <h2 class="code-title">🔧 Quick Start Examples</h2>
+            
+            <div class="code-example">
+                <h4>Basic Setup</h4>
+                <pre><code><span class="comment">// Initialize TypeStorm engine</span>
+<span class="highlight">import</span> { TextEngine } <span class="highlight">from</span> <span class="string">'./src/core/TextEngine.js'</span>;
+
+<span class="highlight">const</span> canvas = document.getElementById(<span class="string">'canvas'</span>);
+<span class="highlight">const</span> engine = <span class="highlight">new</span> TextEngine({
+  canvas,
+  width: <span class="highlight">1080</span>,
+  height: <span class="highlight">1920</span>,
+  fps: <span class="highlight">60</span>
+});
+
+<span class="comment">// Create animation</span>
+<span class="highlight">const</span> animation = <span class="highlight">await</span> engine.applyPreset(
+  <span class="string">"HELLO WORLD"</span>, 
+  <span class="string">"neon"</span>, 
+  { 
+    layoutType: <span class="string">"spiral"</span>,
+    layoutOptions: { spacing: <span class="highlight">80</span> }
+  }
+);
+
+<span class="comment">// Play animation</span>
+engine.play();</code></pre>
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+            </div>
+            
+            <div class="code-example">
+                <h4>Social Media Export</h4>
+                <pre><code><span class="comment">// Export for TikTok (1080x1920, optimized)</span>
+<span class="highlight">const</span> tiktokBlob = <span class="highlight">await</span> engine.exportForTikTok({
+  onProgress: (progress) => {
+    console.log(`Export: ${progress.percentage}%`);
+  },
+  onComplete: (blob) => {
+    <span class="comment">// Download or upload to TikTok</span>
+    downloadBlob(blob, <span class="string">'tiktok-video.mp4'</span>);
+  }
+});
+
+<span class="comment">// Export for Instagram Stories</span>
+<span class="highlight">const</span> instagramBlob = <span class="highlight">await</span> engine.exportForInstagramStories();
+
+<span class="comment">// Export for Twitter</span>
+<span class="highlight">const</span> twitterBlob = <span class="highlight">await</span> engine.exportForTwitter();</code></pre>
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+            </div>
+            
+            <div class="code-example">
+                <h4>Custom Quality Settings</h4>
+                <pre><code><span class="comment">// High-quality export for presentations</span>
+<span class="highlight">const</span> highQualityBlob = <span class="highlight">await</span> engine.exportAnimation({
+  format: <span class="string">'mp4'</span>,
+  quality: <span class="string">'ultra'</span>,
+  fps: <span class="highlight">60</span>,
+  duration: <span class="highlight">10</span>,
+  width: <span class="highlight">1920</span>,
+  height: <span class="highlight">1080</span>,
+  enableHardwareAcceleration: <span class="highlight">true</span>
+});
+
+<span class="comment">// Quick preview export</span>
+<span class="highlight">const</span> previewBlob = <span class="highlight">await</span> engine.exportWithQuality(<span class="string">'low'</span>);</code></pre>
+                <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Code Modal -->
+    <div id="code-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Example Code</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-code"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Example configurations
+        const examples = {
+            'neon-spiral': {
+                title: 'Neon Spiral Effect',
+                code: `import { TextEngine } from './src/core/TextEngine.js';
+
+const canvas = document.getElementById('canvas');
+const engine = new TextEngine({
+  canvas,
+  width: 800,
+  height: 600,
+  fps: 60
+});
+
+// Apply neon preset with spiral layout
+const animation = await engine.applyPreset("NEON POWER", "neon", {
+  layoutType: "spiral",
+  layoutOptions: {
+    spacing: 60,
+    turns: 2,
+    direction: 'clockwise'
+  }
+});
+
+// Play the animation
+engine.play();
+
+// Export as GIF for social media
+const gifBlob = await engine.exportAnimation({
+  format: 'gif',
+  quality: 'high',
+  duration: 5,
+  width: 800,
+  height: 800
+});`
+            },
+            
+            'liquid-radial': {
+                title: 'Liquid Radial Flow',
+                code: `import { TextEngine } from './src/core/TextEngine.js';
+
+const canvas = document.getElementById('canvas');
+const engine = new TextEngine({
+  canvas,
+  width: 800,
+  height: 600,
+  fps: 60
+});
+
+// Apply liquid preset with radial layout
+const animation = await engine.applyPreset("FLOW STATE", "liquid", {
+  layoutType: "radial",
+  layoutOptions: {
+    radius: 180,
+    startAngle: 0,
+    angleStep: 40
+  }
+});
+
+// Play with custom playback speed
+engine.setPlaybackRate(0.8); // Slower for dramatic effect
+engine.play();
+
+// Export for Instagram Stories
+const blob = await engine.exportForInstagramStories({
+  onProgress: (progress) => {
+    console.log(\`Export: \${progress.percentage}%\`);
+  }
+});`
+            },
+            
+            'fire-grid': {
+                title: 'Fire Grid Burst',
+                code: `import { TextEngine } from './src/core/TextEngine.js';
+
+const canvas = document.getElementById('canvas');
+const engine = new TextEngine({
+  canvas,
+  width: 1080,
+  height: 1920,
+  fps: 60
+});
+
+// Apply fire preset with grid layout
+const animation = await engine.applyPreset("IGNITE", "fire", {
+  layoutType: "grid",
+  layoutOptions: {
+    cols: 2,
+    rows: 3,
+    cellWidth: 200,
+    cellHeight: 150
+  }
+});
+
+// Play animation
+engine.play();
+
+// Export with custom settings for dramatic effect
+const blob = await engine.exportAnimation({
+  format: 'mp4',
+  quality: 'ultra',
+  fps: 60,
+  duration: 8,
+  enableHardwareAcceleration: true
+});`
+            },
+            
+            'glitch-effect': {
+                title: 'Digital Glitch Effect',
+                code: `import { TextEngine } from './src/core/TextEngine.js';
+
+const canvas = document.getElementById('canvas');
+const engine = new TextEngine({
+  canvas,
+  width: 1200,
+  height: 675, // Twitter video aspect ratio
+  fps: 30
+});
+
+// Apply glitch preset
+const animation = await engine.applyPreset("SYSTEM ERROR", "glitch", {
+  layoutType: "grid",
+  layoutOptions: {
+    cols: 4,
+    spacing: 40
+  }
+});
+
+// Play animation
+engine.play();
+
+// Export for Twitter
+const twitterBlob = await engine.exportForTwitter({
+  onProgress: (progress) => {
+    if (progress.percentage % 25 === 0) {
+      console.log(\`Export: \${progress.percentage}%\`);
+    }
+  },
+  onComplete: (blob) => {
+    console.log('Twitter video ready!');
+    downloadBlob(blob, 'glitch-twitter.mp4');
+  }
+});`
+            },
+            
+            'vf-morph': {
+                title: 'Variable Font Morphing',
+                code: `import { TextEngine } from './src/core/TextEngine.js';
+
+const canvas = document.getElementById('canvas');
+const engine = new TextEngine({
+  canvas,
+  width: 800,
+  height: 600,
+  fps: 60
+});
+
+// Apply variable font morph preset with custom font
+const animation = await engine.applyPreset("TRANSFORM", "vf-morph", {
+  layoutType: "radial",
+  layoutOptions: {
+    radius: 200,
+    startAngle: -90
+  },
+  fontUrl: '/fonts/inter-variable.woff2' // Custom variable font
+});
+
+// Play animation
+engine.play();
+
+// Export with high quality for professional use
+const blob = await engine.exportWithQuality('ultra', {
+  onComplete: (blob) => {
+    console.log('High-quality export complete');
+  }
+});`
+            },
+            
+            'social-media': {
+                title: 'Social Media Optimization',
+                code: `import { TextEngine } from './src/core/TextEngine.js';
+
+const canvas = document.getElementById('canvas');
+const engine = new TextEngine({
+  canvas,
+  width: 1080,
+  height: 1920, // Vertical format for social media
+  fps: 30
+});
+
+// Apply neon preset optimized for mobile
+const animation = await engine.applyPreset("VIRAL CONTENT", "neon", {
+  layoutType: "grid",
+  layoutOptions: {
+    cols: 2,
+    rows: 5,
+    cellHeight: 150
+  }
+});
+
+// Play animation
+engine.play();
+
+// Export multiple formats for different platforms
+const exports = await Promise.all([
+  // TikTok format
+  engine.exportForTikTok({
+    onProgress: (p) => console.log(\`TikTok: \${p.percentage}%\`)
+  }),
+  
+  // Instagram Stories format  
+  engine.exportForInstagramStories({
+    onProgress: (p) => console.log(\`Instagram: \${p.percentage}%\`)
+  }),
+  
+  // Preview GIF for testing
+  engine.exportAnimation({
+    format: 'gif',
+    quality: 'medium',
+    duration: 3,
+    width: 540,
+    height: 960
+  })
+]);
+
+console.log('All social media formats exported!');`
+            }
+        };
+        
+        // Initialize example canvases
+        function initExamples() {
+            document.querySelectorAll('.example-canvas').forEach(canvas => {
+                const example = canvas.dataset.example;
+                drawExamplePreview(canvas, example);
+            });
+        }
+        
+        // Draw example preview
+        function drawExamplePreview(canvas, exampleType) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Get example-specific styling
+            const styles = getExampleStyles(exampleType);
+            
+            // Draw text based on example type
+            ctx.fillStyle = styles.color;
+            ctx.font = styles.font;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Add glow effect
+            ctx.shadowColor = styles.color;
+            ctx.shadowBlur = styles.glow;
+            
+            // Draw the text
+            ctx.fillText(styles.text, width / 2, height / 2);
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+            
+            // Add example-specific effects
+            addExampleEffects(ctx, exampleType, width, height);
+        }
+        
+        // Get styling for each example
+        function getExampleStyles(exampleType) {
+            const styles = {
+                'neon-spiral': {
+                    color: '#00ffff',
+                    font: 'bold 20px Arial',
+                    text: 'NEON',
+                    glow: 15
+                },
+                'liquid-radial': {
+                    color: '#0099ff',
+                    font: 'bold 18px Arial',
+                    text: 'FLOW',
+                    glow: 10
+                },
+                'fire-grid': {
+                    color: '#ff6600',
+                    font: 'bold 22px Arial',
+                    text: 'FIRE',
+                    glow: 20
+                },
+                'glitch-effect': {
+                    color: '#ff00ff',
+                    font: 'bold 18px monospace',
+                    text: 'ERROR',
+                    glow: 5
+                },
+                'vf-morph': {
+                    color: '#ffff00',
+                    font: '300 20px Arial',
+                    text: 'MORPH',
+                    glow: 8
+                },
+                'social-media': {
+                    color: '#00ffff',
+                    font: 'bold 16px Arial',
+                    text: 'VIRAL',
+                    glow: 12
+                }
+            };
+            
+            return styles[exampleType] || styles['neon-spiral'];
+        }
+        
+        // Add example-specific visual effects
+        function addExampleEffects(ctx, exampleType, width, height) {
+            switch (exampleType) {
+                case 'liquid-radial':
+                    // Add some wave lines
+                    ctx.strokeStyle = 'rgba(0, 153, 255, 0.3)';
+                    ctx.lineWidth = 2;
+                    for (let i = 0; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.arc(width / 2, height / 2, 30 + i * 15, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                    break;
+                    
+                case 'fire-grid':
+                    // Add some particle dots
+                    ctx.fillStyle = 'rgba(255, 102, 0, 0.6)';
+                    for (let i = 0; i < 10; i++) {
+                        const x = Math.random() * width;
+                        const y = Math.random() * height;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+                    
+                case 'glitch-effect':
+                    // Add some glitch lines
+                    ctx.fillStyle = 'rgba(255, 0, 255, 0.5)';
+                    for (let i = 0; i < 5; i++) {
+                        const y = Math.random() * height;
+                        ctx.fillRect(0, y, width, 2);
+                    }
+                    break;
+            }
+        }
+        
+        // Play example animation
+        function playExample(exampleType) {
+            const canvas = document.querySelector(`[data-example="${exampleType}"]`);
+            if (!canvas) return;
+            
+            // Simple animation effect
+            let frame = 0;
+            const animate = () => {
+                if (frame < 60) { // 1 second at 60fps
+                    const progress = frame / 60;
+                    const scale = 1 + Math.sin(progress * Math.PI * 2) * 0.1;
+                    
+                    canvas.style.transform = `scale(${scale})`;
+                    frame++;
+                    requestAnimationFrame(animate);
+                } else {
+                    canvas.style.transform = 'scale(1)';
+                }
+            };
+            
+            animate();
+        }
+        
+        // Show code modal
+        function showCode(exampleType) {
+            const example = examples[exampleType];
+            if (!example) return;
+            
+            document.getElementById('modal-title').textContent = example.title;
+            document.getElementById('modal-code').innerHTML = `
+                <div class="code-example">
+                    <pre><code>${syntaxHighlight(example.code)}</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy Code</button>
+                </div>
+            `;
+            
+            document.getElementById('code-modal').style.display = 'block';
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('code-modal').style.display = 'none';
+        }
+        
+        // Copy code to clipboard
+        function copyCode(button) {
+            const codeBlock = button.previousElementSibling.textContent;
+            
+            navigator.clipboard.writeText(codeBlock).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#00ff00';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#00ffff';
+                }, 1500);
+            });
+        }
+        
+        // Simple syntax highlighting
+        function syntaxHighlight(code) {
+            return code
+                .replace(/\b(import|from|const|let|var|function|class|async|await|new|return)\b/g, '<span class="highlight">$1</span>')
+                .replace(/"([^"]*)"/g, '<span class="string">"$1"</span>')
+                .replace(/\/\/.*$/gm, '<span class="comment">$&</span>')
+                .replace(/\b(\d+)\b/g, '<span class="highlight">$1</span>');
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('code-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initExamples);
+    </script>
+</body>
+</html>
